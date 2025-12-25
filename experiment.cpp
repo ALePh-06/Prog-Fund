@@ -15,4 +15,26 @@ int main()
         cout<<"Error, file cannot be opened."<<endl;
         return 1;
     }
+
+
+getline(file, line); //read and discard headers
+while (getline(file, line)) { //read any remaining lines
+        int ID;
+        string name, status;
+        
+
+        stringstream ss(line);
+
+    getline(ss,name, ','); //read any values seperated by comma, not sure if work
+    ss>> ID;
+    ss.ignore(); 
+    ss>>status;
+
+    cout    << "Name: " <<name //data output
+            << " , ID: " <<ID
+            << " , Status: " <<status << endl;
+
+}
+file.close();
+return 0;
 }
