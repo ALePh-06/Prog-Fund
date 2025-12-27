@@ -38,3 +38,19 @@ while (getline(file, line)) { //read any remaining lines
 file.close();
 return 0;
 }
+
+void InsertData()
+{
+    ofstream ofs;
+    ofs.open("test.txt");
+    
+    string arr[3] = {"test (INT)", "fish (text)", "ikan (ayam)"};
+    
+    for(int i = 0; i < 3; i++){
+        ofs << arr[i];
+        if (i < 2){
+            ofs << ", ";
+        }
+    }
+    ofs.close();
+}
