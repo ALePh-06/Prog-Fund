@@ -1,0 +1,6 @@
+ID (INT), Name (TXT), Status (TXT)
+
+23, Abu Bakar, Hidup
+44892, ikan, ayam
+34, ali, ayam,
+2672389, dusa, hsd3
