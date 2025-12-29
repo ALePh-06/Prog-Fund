@@ -12,10 +12,54 @@ string extractType(const string& s);
 string extractValue(const string& s);
 bool isValidInt(const std::string& s);
 void inStore();
+bool checkOrCreateCSV(const string& filename);
+
+bool checkOrCreateCSV(const string& filename) {
+    ifstream infile(filename);
+    if (infile.good()) {
+        infile.close();
+        return true; // File already exists
+    }
+    infile.close();
+
+    // File does not exist → create it
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr << "Error creating file.\n";
+        return false;
+    }
+
+    int columns;
+    cout << "CSV file not found. Creating a new one.\n";
+    cout << "Enter number of columns: ";
+    cin >> columns;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    for (int i = 0; i < columns; i++) {
+        string name, type;
+
+        cout << "Enter column " << i + 1 << " name: ";
+        getline(cin, name);
+
+        cout << "Enter column " << i + 1 << " type (INT or STRING): ";
+        getline(cin, type);
+
+        outfile << name << "(" << type << ")";
+        if (i < columns - 1) {
+            outfile << ", ";
+        }
+    }
+
+    outfile.close();
+    cout << "CSV file created successfully.\n";
+    return true;
+}
+
 
 int main (){
+    if (checkOrCreateCSV("test.txt")) {
     inStore();
-
+    }
     return 0;
 }
 
