@@ -5,70 +5,154 @@
 #include <vector>
 #include <string>
 #include <limits>
-
+#include <cctype>
 using namespace std;
 
-string extractType(const string& s);
-string extractValue(const string& s);
-bool isValidInt(const std::string& s);
-void inStore();
-bool checkOrCreateCSV(const string& filename);
+string extractType(const string& s); //extract column type
+string extractValue(const string& s);//extract name
+bool isValidInt(const std::string& s); //check if input is valid int
+bool isValidType(string type) {
+    // Convert to uppercase
+    for (char &c : type) {
+        c = toupper(c);
+    }
 
-bool checkOrCreateCSV(const string& filename) {
-    ifstream infile(filename);
-    if (infile.good()) {
+    return (type == "INT" || type == "STRING");
+}
+
+bool isValidColumnName(string name) //remove empty space
+{
+    
+    size_t start = name.find_first_not_of(" \t");
+    if (start == string::npos) return false;
+
+    size_t end = name.find_last_not_of(" \t");
+    name = name.substr(start, end - start + 1);
+
+    return !name.empty();
+}
+void inStore(const string& filename);
+
+
+bool checkOrCreateCSV(const string& filename) 
+{
+    ifstream infile(filename); //if exist, add data to new row
+    if (infile.good()) 
+    {
         infile.close();
-        return true; // File already exists
+        cout << "File exists. Opening file...\n";
+        return true;
     }
     infile.close();
 
-    // File does not exist → create it
+    // File does not exist → ask user
+    char choice;
+    cout << "File does not exist.\n";
+    cout << "Do you want to create it? (y/n): ";
+    cin >> choice;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (choice != 'y' && choice != 'Y') 
+    {
+        return false;
+    }
+
     ofstream outfile(filename);
-    if (!outfile.is_open()) {
+    if (!outfile.is_open()) 
+    {
         cerr << "Error creating file.\n";
         return false;
     }
 
-    int columns;
-    cout << "CSV file not found. Creating a new one.\n";
+int column;
+string temp;
+
+while (true) 
+{
     cout << "Enter number of columns: ";
-    cin >> columns;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, temp);
 
-    for (int i = 0; i < columns; i++) {
-        string name, type;
-
-        cout << "Enter column " << i + 1 << " name: ";
-        getline(cin, name);
-
-        cout << "Enter column " << i + 1 << " type (INT or STRING): ";
-        getline(cin, type);
-
-        outfile << name << "(" << type << ")";
-        if (i < columns - 1) {
-            outfile << ", ";
+    if (isValidInt(temp)) 
+    {
+        column = stoi(temp);
+        if (column > 0) {
+            break;
         }
     }
 
+    cout << "Invalid input. Please enter a positive integer.\n";
+}
+
+
+
+
+    for (int i = 0; i < column; i++) {
+        string name, type;
+
+while (true)
+ {
+    cout << "Enter column " << i + 1 << " name: ";
+    getline(cin, name);
+
+    if (isValidColumnName(name)) 
+    {
+        break;
+    }
+
+    cout << "Column name cannot be empty. Please try again.\n";
+}
+
+    while (true) 
+    {
+    cout << "Enter column " << i + 1 << " type (INT or STRING): ";
+    getline(cin, type);
+
+    if (isValidType(type)) 
+    {
+        // normalize to uppercase before storing
+        for (char &c : type) c = toupper(c);
+        break;
+    }
+
+    cout << "Invalid type. Please enter INT or STRING only.\n";
+    }
+
+outfile << name << "(" << type << ")";
+
+        if (i < column - 1) outfile << ", ";
+    }
+
     outfile.close();
-    cout << "CSV file created successfully.\n";
+    cout << "File created successfully.\n";
     return true;
 }
 
 
-int main (){
-    if (checkOrCreateCSV("test.txt")) {
-    inStore();
+
+int main () //prompts filename and check
+{
+    string filename;
+    cout << "Enter file name: ";
+    getline(cin, filename);
+
+    if (checkOrCreateCSV(filename)) 
+    {
+        inStore(filename);
+    } else 
+    {
+        cout << "Operation cancelled.\n";
     }
+
     return 0;
 }
 
-///Input Insertion into the file
-void inStore(){
+//adds input into file
+void inStore(const string& filename)
+{
     ifstream infile;
-    infile.open("test.txt");
+    infile.open(filename);
     ofstream outfile;
-    outfile.open("test.txt", ios::app);
+    outfile.open(filename, ios::app);
     string line, temp;
     int column, i;
     vector<string> data, input;
@@ -85,7 +169,6 @@ void inStore(){
     for(int i = 0; i < column; i++){
         string type = extractType(data[i]);
         string value = extractValue(data[i]);
-        int number;
         string tempStr;
         cout << "Please enter the " << value << ":" << endl;
         while (true) {
