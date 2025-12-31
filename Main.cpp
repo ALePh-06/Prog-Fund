@@ -57,7 +57,7 @@ bool checkOrCreateCSV(const string& filename)
         return false;
     }
 
-    ofstream outfile(filename);
+    ofstream outfile(filename); //opens file
     if (!outfile.is_open()) 
     {
         cerr << "Error creating file.\n";
