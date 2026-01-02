@@ -86,10 +86,10 @@ while (true)
 
 
 
-    for (int i = 0; i < column; i++) {
-        string name, type;
+for (int i = 0; i < column; i++) {
+    string name, type;
 
-while (true)
+    while (true)
  {
     cout << "Enter column " << i + 1 << " name: ";
     getline(cin, name);
@@ -132,12 +132,21 @@ outfile << name << "(" << type << ")";
 int main () //prompts filename and check
 {
     string filename;
-    cout << "Enter file name: ";
+    cout << "Enter file name (please put '.txt' after the file name): ";
     getline(cin, filename);
 
     if (checkOrCreateCSV(filename)) 
-    {
-        inStore(filename);
+    {int inputs;
+    string tempinputs;
+    cout << "Please enter how many data do you want to insert into the sheet: ";
+    getline(cin, tempinputs);
+    while(!isValidInt(tempinputs)){
+        cout << "Please enter only integers:";
+        getline(cin, tempinputs);
+    }
+    inputs = stoi(tempinputs);
+    for (int i = 0; i < inputs; i++){
+        inStore(filename);}
     } else 
     {
         cout << "Operation cancelled.\n";
@@ -170,14 +179,14 @@ void inStore(const string& filename)
         string type = extractType(data[i]);
         string value = extractValue(data[i]);
         string tempStr;
-        cout << "Please enter the " << value << ":" << endl;
+        cout << "Please enter the " << value << " (" << type << ")" << ":" << endl;
         while (true) {
         getline(cin, tempStr);
 
         if (type == "INT") {
             if (!isValidInt(tempStr)) {
                 cout << "Invalid input. Please enter an integer: ";
-                continue;
+                getline(cin, tempStr);
                 }
             }
             break;
