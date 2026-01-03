@@ -161,7 +161,7 @@ void inStore(const string& filename)
     ifstream infile;
     infile.open(filename);
     ofstream outfile;
-    outfile.open(filename, ios::app);
+    outfile.open(filename, ios::app);///open file in append mode
     string line, temp;
     int column, i;
     vector<string> data, input;
@@ -173,17 +173,17 @@ void inStore(const string& filename)
     }
 
     column = data.size();
-    input.resize(column);
+    input.resize(column);///resizing input vector to match the number of column in file
     outfile << "\n";
     for(int i = 0; i < column; i++){
-        string type = extractType(data[i]);
-        string value = extractValue(data[i]);
+        string type = extractType(data[i]);///getting the column type
+        string value = extractValue(data[i]);///getting the column name
         string tempStr;
         cout << "Please enter the " << value << " (" << type << ")" << ":" << endl;
         while (true) {
         getline(cin, tempStr);
 
-        if (type == "INT") {
+        if (type == "INT") {///input sanity check
             if (!isValidInt(tempStr)) {
                 cout << "Invalid input. Please enter an integer: ";
                 getline(cin, tempStr);
@@ -192,7 +192,7 @@ void inStore(const string& filename)
             break;
         }
         input[i] = tempStr;
-        outfile << input[i];
+        outfile << input[i];///appending input into the file
         if (i < column - 1){
             outfile << ", ";
         }
@@ -205,10 +205,10 @@ void inStore(const string& filename)
 ///Taking out the string between '(' and ')'
 std::string extractType(const std::string& s)
 {
-    size_t start = s.find('(');
-    size_t end = s.find(')');
+    size_t start = s.find('(');///finding the location of (
+    size_t end = s.find(')');///finding the location of )
     if (start == std::string::npos || end == std::string::npos || end <= start) {
-    return "";  
+    return "";  ///error handlig due to incorrect format
     }
     return s.substr(start + 1, end - start - 1);
 }
