@@ -69,18 +69,18 @@ string temp;
 
 while (true) 
 {
-    cout << "Enter number of columns: ";
+    cout << "Enter number of columns (1-10): ";
     getline(cin, temp);
 
     if (isValidInt(temp)) 
     {
         column = stoi(temp);
-        if (column > 0) {
+        if (column > 0 && column <= 10) {
             break;
         }
     }
 
-    cout << "Invalid input. Please enter a positive integer.\n";
+    cout << "Invalid input. Please enter an integer between 1 and 10.\n";
 }
 
 
