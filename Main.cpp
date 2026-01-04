@@ -8,36 +8,40 @@
 #include <cctype>
 using namespace std;
 
-string extractType(const string& s); //extract column type
-string extractValue(const string& s);//extract name
-bool isValidInt(const std::string& s); //check if input is valid int
-bool isValidType(string type) {
+string extractType(const string &s);   // extract column type
+string extractValue(const string &s);  // extract name
+bool isValidInt(const std::string &s); // check if input is valid int
+void viewSheet(string filename);
+void errorDemo();
+bool isValidType(string type)
+{
     // Convert to uppercase
-    for (char &c : type) {
+    for (char &c : type)
+    {
         c = toupper(c);
     }
 
     return (type == "INT" || type == "STRING");
 }
 
-bool isValidColumnName(string name) //remove empty space
+bool isValidColumnName(string name) // remove empty space
 {
-    
+
     size_t start = name.find_first_not_of(" \t");
-    if (start == string::npos) return false;
+    if (start == string::npos)
+        return false;
 
     size_t end = name.find_last_not_of(" \t");
     name = name.substr(start, end - start + 1);
 
     return !name.empty();
 }
-void inStore(const string& filename);
+void inStore(const string &filename);
 
-
-bool checkOrCreateCSV(const string& filename) 
+bool checkOrCreateCSV(const string &filename)
 {
-    ifstream infile(filename); //if exist, add data to new row
-    if (infile.good()) 
+    ifstream infile(filename); // if exist, add data to new row
+    if (infile.good())
     {
         infile.close();
         cout << "File exists. Opening file...\n";
@@ -52,181 +56,248 @@ bool checkOrCreateCSV(const string& filename)
     cin >> choice;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    if (choice != 'y' && choice != 'Y') 
+    if (choice != 'y' && choice != 'Y')
     {
         return false;
     }
 
-    ofstream outfile(filename); //opens file
-    if (!outfile.is_open()) 
+    ofstream outfile(filename); // opens file
+    if (!outfile.is_open())
     {
         cerr << "Error creating file.\n";
         return false;
     }
 
-int column;
-string temp;
-
-while (true) 
-{
-    cout << "Enter number of columns (1-10): ";
-    getline(cin, temp);
-
-    if (isValidInt(temp)) 
-    {
-        column = stoi(temp);
-        if (column > 0 && column <= 10) {
-            break;
-        }
-    }
-
-    cout << "Invalid input. Please enter an integer between 1 and 10.\n";
-}
-
-
-
-
-for (int i = 0; i < column; i++) {
-    string name, type;
+    int column;
+    string temp;
 
     while (true)
- {
-    cout << "Enter column " << i + 1 << " name: ";
-    getline(cin, name);
-
-    if (isValidColumnName(name)) 
     {
-        break;
+        cout << "Enter number of columns (1-10): ";
+        getline(cin, temp);
+
+        if (isValidInt(temp))
+        {
+            column = stoi(temp);
+            if (column > 0 && column <= 10)
+            {
+                break;
+            }
+        }
+
+        cout << "Invalid input. Please enter an integer between 1 and 10.\n";
     }
 
-    cout << "Column name cannot be empty. Please try again.\n";
-}
+    cout << endl;
 
-    while (true) 
+    for (int i = 0; i < column; i++)
     {
-    cout << "Enter column " << i + 1 << " type (INT or STRING): ";
-    getline(cin, type);
+        string name, type;
 
-    if (isValidType(type)) 
-    {
-        // normalize to uppercase before storing
-        for (char &c : type) c = toupper(c);
-        break;
-    }
+        while (true)
+        {
+            cout << "Enter column " << i + 1 << " name: ";
+            getline(cin, name);
 
-    cout << "Invalid type. Please enter INT or STRING only.\n";
-    }
+            if (isValidColumnName(name))
+            {
+                break;
+            }
 
-outfile << name << "(" << type << ")";
+            cout << "Column name cannot be empty. Please try again.\n";
+        }
 
-        if (i < column - 1) outfile << ", ";
+        while (true)
+        {
+            cout << "Enter column " << i + 1 << " type (INT or STRING): ";
+            getline(cin, type);
+
+            if (isValidType(type))
+            {
+                // normalize to uppercase before storing
+                for (char &c : type)
+                    c = toupper(c);
+                break;
+            }
+
+            cout << "Invalid type. Please enter INT or STRING only.\n";
+        }
+
+        outfile << name << "(" << type << ")";
+
+        if (i < column - 1)
+            outfile << ", ";
+
+        cout << endl;
     }
 
     outfile.close();
-    cout << "File created successfully.\n";
+    cout << "File created successfully.\n"
+         << endl;
     return true;
 }
 
+void divider(string text);
 
-
-int main () //prompts filename and check
+int main() // prompts filename and check
 {
+    divider("STUDENT ATTENDANCE TRACKER - MILESTONE 1");
     string filename;
     cout << "Enter file name (please put '.txt' after the file name): ";
     getline(cin, filename);
 
-    if (checkOrCreateCSV(filename)) 
-    {int inputs;
-    string tempinputs;
-    cout << "Please enter how many data do you want to insert into the sheet: ";
-    getline(cin, tempinputs);
-    while(!isValidInt(tempinputs)){
-        cout << "Please enter only integers:";
+    if (checkOrCreateCSV(filename))
+    {
+        int inputs;
+        string tempinputs;
+        cout << "Please enter how many data do you want to insert into the sheet: " << endl;
         getline(cin, tempinputs);
+        while (!isValidInt(tempinputs))
+        {
+            cout << "Please enter only integers:";
+            getline(cin, tempinputs);
+        }
+        inputs = stoi(tempinputs);
+        for (int i = 0; i < inputs; i++)
+        {
+            inStore(filename);
+        }
     }
-    inputs = stoi(tempinputs);
-    for (int i = 0; i < inputs; i++){
-        inStore(filename);}
-    } else 
+    else
     {
         cout << "Operation cancelled.\n";
     }
 
+    divider("View Attendance Sheet (CSV Mode)");
+    viewSheet(filename);
+
+    divider("Basic Error Handling Demo");
+    errorDemo();
+
+    divider("End of Milestone 1 Output");
     return 0;
 }
 
-//adds input into file
-void inStore(const string& filename)
+// adds input into file
+void inStore(const string &filename)
 {
     ifstream infile;
     infile.open(filename);
     ofstream outfile;
-    outfile.open(filename, ios::app);///open file in append mode
+    outfile.open(filename, ios::app); /// open file in append mode
     string line, temp;
     int column, i;
     vector<string> data, input;
     getline(infile, line);
     stringstream s(line);
-    ///Insert the segmented line into a vector
-    while(getline(s, temp, ',')){
+    /// Insert the segmented line into a vector
+    while (getline(s, temp, ','))
+    {
         data.push_back(temp);
     }
 
     column = data.size();
-    input.resize(column);///resizing input vector to match the number of column in file
+    input.resize(column); /// resizing input vector to match the number of column in file
     outfile << "\n";
-    for(int i = 0; i < column; i++){
-        string type = extractType(data[i]);///getting the column type
-        string value = extractValue(data[i]);///getting the column name
+    divider("Insert New Attendance Row");
+    for (int i = 0; i < column; i++)
+    {
+        string type = extractType(data[i]);   /// getting the column type
+        string value = extractValue(data[i]); /// getting the column name
         string tempStr;
-        cout << "Please enter the " << value << " (" << type << ")" << ":" << endl;
-        while (true) {
-        getline(cin, tempStr);
+        cout << "Please enter the " << value << " (" << type << ")" << ":";
+        while (true)
+        {
+            getline(cin, tempStr);
 
-        if (type == "INT") {///input sanity check
-            if (!isValidInt(tempStr)) {
-                cout << "Invalid input. Please enter an integer: ";
-                getline(cin, tempStr);
+            if (type == "INT")
+            { /// input sanity check
+                if (!isValidInt(tempStr))
+                {
+                    cout << "Invalid input. Please enter an integer: ";
+                    getline(cin, tempStr);
                 }
             }
             break;
         }
         input[i] = tempStr;
-        outfile << input[i];///appending input into the file
-        if (i < column - 1){
+        outfile << input[i]; /// appending input into the file
+        if (i < column - 1)
+        {
             outfile << ", ";
         }
     }
+
+    cout << endl;
 
     infile.close();
     outfile.close();
 }
 
-///Taking out the string between '(' and ')'
-std::string extractType(const std::string& s)
+/// Taking out the string between '(' and ')'
+std::string extractType(const std::string &s)
 {
-    size_t start = s.find('(');///finding the location of (
-    size_t end = s.find(')');///finding the location of )
-    if (start == std::string::npos || end == std::string::npos || end <= start) {
-    return "";  ///error handlig due to incorrect format
+    size_t start = s.find('('); /// finding the location of (
+    size_t end = s.find(')');   /// finding the location of )
+    if (start == std::string::npos || end == std::string::npos || end <= start)
+    {
+        return ""; /// error handlig due to incorrect format
     }
     return s.substr(start + 1, end - start - 1);
 }
 
-///Taking out the string before the '('
-std::string extractValue(const std::string& s)
+/// Taking out the string before the '('
+std::string extractValue(const std::string &s)
 {
     size_t end = s.find('(');
     return s.substr(0, end);
 }
 
-///Input sanity check
-bool isValidInt(const std::string& s) {
-    try {
+/// Input sanity check
+bool isValidInt(const std::string &s)
+{
+    try
+    {
         size_t pos;
         std::stoi(s, &pos);
-        return pos == s.length(); //Making sure the whole string is numbers
-    } catch (...) {
+        return pos == s.length(); // Making sure the whole string is numbers
+    }
+    catch (...)
+    {
         return false;
+    }
+}
+
+void divider(string text)
+{
+    cout << "-------------------------------------------" << endl
+         << text << endl
+         << "-------------------------------------------" << endl
+         << endl;
+}
+
+void viewSheet(string filename) // displays the data in CSV Mode
+{
+    string text;
+    ifstream sheet(filename);
+    while (getline(sheet, text))
+    {
+        cout << text << endl;
+    }
+    cout << endl;
+    sheet.close();
+}
+
+void errorDemo()
+{
+    string tempInt;
+
+    cout << "Enter ID (int): ";
+    getline(cin, tempInt);
+
+    if (!isValidInt(tempInt))
+    {
+        cout << "Invalid input. Please enter an integer: " << endl
+             << endl;
     }
 }
