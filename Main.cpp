@@ -90,10 +90,10 @@ while (true)
 
 
 
-    for (int i = 0; i < column; i++) {
-        string name, type;
+for (int i = 0; i < column; i++) {
+    string name, type;
 
-while (true)
+    while (true)
  {
     cout << "Enter column " << i + 1 << " name: ";
     getline(cin, name);
@@ -144,12 +144,21 @@ if (access(strPath.c_str(),0)==0)
 
 }
     string filename;
-    cout << "Enter file name: ";
+    cout << "Enter file name (please put '.txt' after the file name): ";
     getline(cin, filename);
 
     if (checkOrCreateCSV(filename)) 
-    {
-        inStore(filename);
+    {int inputs;
+    string tempinputs;
+    cout << "Please enter how many data do you want to insert into the sheet: ";
+    getline(cin, tempinputs);
+    while(!isValidInt(tempinputs)){
+        cout << "Please enter only integers:";
+        getline(cin, tempinputs);
+    }
+    inputs = stoi(tempinputs);
+    for (int i = 0; i < inputs; i++){
+        inStore(filename);}
     } else 
     {
         cout << "Operation cancelled.\n";
@@ -164,7 +173,7 @@ void inStore(const string& filename)
     ifstream infile;
     infile.open(filename);
     ofstream outfile;
-    outfile.open(filename, ios::app);
+    outfile.open(filename, ios::app);///open file in append mode
     string line, temp;
     int column, i;
     vector<string> data, input;
@@ -176,26 +185,26 @@ void inStore(const string& filename)
     }
 
     column = data.size();
-    input.resize(column);
+    input.resize(column);///resizing input vector to match the number of column in file
     outfile << "\n";
     for(int i = 0; i < column; i++){
-        string type = extractType(data[i]);
-        string value = extractValue(data[i]);
+        string type = extractType(data[i]);///getting the column type
+        string value = extractValue(data[i]);///getting the column name
         string tempStr;
-        cout << "Please enter the " << value << ":" << endl;
+        cout << "Please enter the " << value << " (" << type << ")" << ":" << endl;
         while (true) {
         getline(cin, tempStr);
 
-        if (type == "INT") {
+        if (type == "INT") {///input sanity check
             if (!isValidInt(tempStr)) {
                 cout << "Invalid input. Please enter an integer: ";
-                continue;
+                getline(cin, tempStr);
                 }
             }
             break;
         }
         input[i] = tempStr;
-        outfile << input[i];
+        outfile << input[i];///appending input into the file
         if (i < column - 1){
             outfile << ", ";
         }
@@ -208,10 +217,10 @@ void inStore(const string& filename)
 ///Taking out the string between '(' and ')'
 std::string extractType(const std::string& s)
 {
-    size_t start = s.find('(');
-    size_t end = s.find(')');
+    size_t start = s.find('(');///finding the location of (
+    size_t end = s.find(')');///finding the location of )
     if (start == std::string::npos || end == std::string::npos || end <= start) {
-    return "";  
+    return "";  ///error handlig due to incorrect format
     }
     return s.substr(start + 1, end - start - 1);
 }
