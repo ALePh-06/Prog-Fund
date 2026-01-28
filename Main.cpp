@@ -154,7 +154,7 @@ int main() // prompts filename and check
         getline(cin, tempinputs);
         while (!isValidInt(tempinputs))
         {
-            cout << "Please enter only integers:";
+            cout << "Please enter only integers: ";
             getline(cin, tempinputs);
         }
         inputs = stoi(tempinputs);
@@ -171,7 +171,7 @@ int main() // prompts filename and check
     divider("View Attendance Sheet (CSV Mode)");
     viewSheet(filename);
 
-    divider("Basic Error Handling Demo");
+    divider("Advanced Error Handling Demo");
     errorDemo();
 
     divider("End of Milestone 1 Output");
