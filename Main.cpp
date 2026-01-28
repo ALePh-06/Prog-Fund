@@ -6,10 +6,14 @@
 #include <string>
 #include <limits>
 #include <cctype>
+#include <sys/stat.h>
+#include<sys/types.h>
+
 using namespace std;
 
 string extractType(const string& s); //extract column type
 string extractValue(const string& s);//extract name
+
 bool isValidInt(const std::string& s); //check if input is valid int
 bool isValidType(string type) {
     // Convert to uppercase
@@ -131,6 +135,14 @@ outfile << name << "(" << type << ")";
 
 int main () //prompts filename and check
 {
+string strPath;
+cout << "Which category of class you want to enter: ";
+cin>> strPath;
+if (access(strPath.c_str(),0)==0)
+{
+
+
+}
     string filename;
     cout << "Enter file name: ";
     getline(cin, filename);
