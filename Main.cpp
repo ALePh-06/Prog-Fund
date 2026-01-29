@@ -6,11 +6,12 @@
 #include <string>
 #include <limits>
 #include <cctype>
-#include <sys/stat.h>
-#include<sys/types.h>
+#include <filesystem>
 
+namespace fs= std::filesystem; //filesystem library
 using namespace std;
 
+string handleDirectory();
 string extractType(const string& s); //extract column type
 string extractValue(const string& s);//extract name
 
@@ -22,6 +23,36 @@ bool isValidType(string type) {
     }
 
     return (type == "INT" || type == "STRING");
+}
+
+string handleDirectory() {
+    string dirName;
+    while (true) {
+        cout << "Enter the category (folder) name: ";
+        getline(cin, dirName);
+
+        if (fs::exists(dirName)) {
+            if (fs::is_directory(dirName)) {
+                cout << "Folder found. Entering '" << dirName << "'...\n";
+                return dirName;
+            } else {
+                cout << "Error: A file with this name already exists, but it's not a folder.\n";
+            }
+        } else {
+            char choice;
+            cout << "Folder does not exist. Create and enter it? (y/n): ";
+            cin >> choice;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+
+            if (choice == 'y' || choice == 'Y') {
+                if (fs::create_directory(dirName)) {
+                    cout << "Folder created successfully.\n";
+                    return dirName;
+                }
+            }
+            cout << "Please enter a valid folder name to proceed.\n";
+        }
+    }
 }
 
 bool isValidColumnName(string name) //remove empty space
@@ -90,10 +121,10 @@ while (true)
 
 
 
-for (int i = 0; i < column; i++) {
-    string name, type;
+    for (int i = 0; i < column; i++) {
+        string name, type;
 
-    while (true)
+while (true)
  {
     cout << "Enter column " << i + 1 << " name: ";
     getline(cin, name);
@@ -133,39 +164,29 @@ outfile << name << "(" << type << ")";
 
 
 
-int main () //prompts filename and check
-{
-string strPath;
-cout << "Which category of class you want to enter: ";
-cin>> strPath;
-if (access(strPath.c_str(),0)==0)
-{
+int main() //prompts filename and check
+   {
+    // 1. Ask for folder first
+    string folder = handleDirectory();
 
-
-}
+    // 2. Ask for file
     string filename;
-    cout << "Enter file name (please put '.txt' after the file name): ";
+    cout << "Enter file name (e.g., student_data.csv): ";
     getline(cin, filename);
 
-    if (checkOrCreateCSV(filename)) 
-    {int inputs;
-    string tempinputs;
-    cout << "Please enter how many data do you want to insert into the sheet: ";
-    getline(cin, tempinputs);
-    while(!isValidInt(tempinputs)){
-        cout << "Please enter only integers:";
-        getline(cin, tempinputs);
-    }
-    inputs = stoi(tempinputs);
-    for (int i = 0; i < inputs; i++){
-        inStore(filename);}
-    } else 
-    {
+    // 3. Combine folder and filename (e.g., "Category/file.csv")
+    string fullPath = folder + "/" + filename;
+
+    // 4. Run your existing logic using fullPath instead of filename
+    if (checkOrCreateCSV(fullPath)) {
+        inStore(fullPath);
+    } else {
         cout << "Operation cancelled.\n";
     }
 
     return 0;
 }
+
 
 //adds input into file
 void inStore(const string& filename)
@@ -173,7 +194,7 @@ void inStore(const string& filename)
     ifstream infile;
     infile.open(filename);
     ofstream outfile;
-    outfile.open(filename, ios::app);///open file in append mode
+    outfile.open(filename, ios::app);
     string line, temp;
     int column, i;
     vector<string> data, input;
@@ -185,26 +206,26 @@ void inStore(const string& filename)
     }
 
     column = data.size();
-    input.resize(column);///resizing input vector to match the number of column in file
+    input.resize(column);
     outfile << "\n";
     for(int i = 0; i < column; i++){
-        string type = extractType(data[i]);///getting the column type
-        string value = extractValue(data[i]);///getting the column name
+        string type = extractType(data[i]);
+        string value = extractValue(data[i]);
         string tempStr;
-        cout << "Please enter the " << value << " (" << type << ")" << ":" << endl;
+        cout << "Please enter the " << value << ":" << endl;
         while (true) {
         getline(cin, tempStr);
 
-        if (type == "INT") {///input sanity check
+        if (type == "INT") {
             if (!isValidInt(tempStr)) {
                 cout << "Invalid input. Please enter an integer: ";
-                getline(cin, tempStr);
+                continue;
                 }
             }
             break;
         }
         input[i] = tempStr;
-        outfile << input[i];///appending input into the file
+        outfile << input[i];
         if (i < column - 1){
             outfile << ", ";
         }
@@ -217,10 +238,10 @@ void inStore(const string& filename)
 ///Taking out the string between '(' and ')'
 std::string extractType(const std::string& s)
 {
-    size_t start = s.find('(');///finding the location of (
-    size_t end = s.find(')');///finding the location of )
+    size_t start = s.find('(');
+    size_t end = s.find(')');
     if (start == std::string::npos || end == std::string::npos || end <= start) {
-    return "";  ///error handlig due to incorrect format
+    return "";  
     }
     return s.substr(start + 1, end - start - 1);
 }
