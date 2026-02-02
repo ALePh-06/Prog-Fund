@@ -48,8 +48,7 @@ bool isValidColumnName(string name) // remove empty space
 }
 void inStore(const string &filename);
 void inEdit(const string &filename, const string &folder);
-void inUpdate(const string &filename);
-void inDelete(const string &filename);
+void inUpdate(const string &filename, string &line, const string &folder);
 void fileswap(const string &filename, const string &folder);
 
 bool checkOrCreateCSV(const string &filename)
@@ -320,7 +319,7 @@ void inEdit(const string &filename, const string &folder){
     ifstream infile;
     infile.open(filename);
     ofstream tempfile;
-    tempfile.open(temp, ios::out);
+    tempfile.open(temp, ios::app);
     string line, keyword, confirm;
     cout << "Please enter the keyword for the line that is to be updated/deleted: ";
     getline(cin, keyword);
@@ -331,13 +330,25 @@ void inEdit(const string &filename, const string &folder){
             cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
             getline(cin, confirm);
             if (confirm == "1"){
-                inUpdate(filename);
+                inUpdate(filename, line, folder);
             }
             else if (confirm =="2"){
-                inDelete(filename);
+                string confirm;
+                cout << "Are you certain to delete this line? 1/Y to confirm, else for cancel" << endl;
+                getline(cin, confirm);
+                if (confirm != "1" && confirm != "Y" && confirm != "y")
+                {
+                    tempfile << line << endl;
+                }
+
+
             }
         }
-        tempfile << line << endl;
+        else
+        {
+            tempfile << line << endl;
+        }
+
     }
     infile.close();
     tempfile.close();
@@ -345,12 +356,58 @@ void inEdit(const string &filename, const string &folder){
     fileswap(filename, temp);
 }
 
-void inUpdate(const string &filename){
+void inUpdate(const string &filename, string &line, const string &folder){
+    string temp = folder + "/temp.csv";
+    ofstream tempfile;
+    tempfile.open(temp, ios::app);
+    ifstream infile;
+    infile.open(filename);
+    string temtem, fRow;
+    getline(infile, fRow);
 
-}
 
-void inDelete(const string &filename){
+    int column, i;
+    vector<string> data, input;
+    stringstream s;
+    s << fRow;
+    /// Insert the segmented line into a vector
+    while (getline(s, temtem, ','))
+    {
+        data.push_back(temtem);
+    }
 
+    column = data.size();
+    input.resize(column);
+
+    for (int i = 0; i < column; i++)
+    {
+        string type = extractType(data[i]);   /// getting the column type
+        string value = extractValue(data[i]); /// getting the column name
+        string tempStr;
+        cout << "Please enter the " << value << " (" << type << ")" << ":";
+        while (true)
+        {
+            getline(cin, tempStr);
+
+            if (type == "INT")
+            { /// input sanity check
+                if (!isValidInt(tempStr))
+                {
+                    cout << "Invalid input. Please enter an integer: ";
+                    continue;
+                }
+            }
+            break;
+        }
+        input[i] = tempStr;
+        tempfile << input[i]; /// appending input into the file
+        if (i < column - 1)
+        {
+            tempfile << ",";
+        }
+    }
+    tempfile << endl;
+    infile.close();
 }
 
 void fileswap(const string &filename, const string &temp){
