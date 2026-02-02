@@ -46,6 +46,9 @@ bool isValidColumnName(string name) // remove empty space
     return !name.empty();
 }
 void inStore(const string &filename);
+void inEdit(const string &filename);
+void inUpdate(const string &filename);
+void inDelete(const string &filename);
 
 bool checkOrCreateCSV(const string &filename)
 {
@@ -135,7 +138,7 @@ bool checkOrCreateCSV(const string &filename)
         outfile << name << "(" << type << ")";
 
         if (i < column - 1)
-            outfile << ", ";
+            outfile << ",";
 
         cout << endl;
     }
@@ -185,7 +188,7 @@ filename = folder + "/" + filename;
     {
         cout << "Operation cancelled.\n";
     }
-
+    inEdit(filename);
     divider("View Attendance Sheet (CSV Mode)");
     viewSheet(filename);
 
@@ -291,7 +294,6 @@ void inStore(const string &filename)
                 if (!isValidInt(tempStr))
                 {
                     cout << "Invalid input. Please enter an integer: ";
-                    getline(cin, tempStr);
                     continue;
                 }
             }
@@ -301,7 +303,7 @@ void inStore(const string &filename)
         outfile << input[i]; /// appending input into the file
         if (i < column - 1)
         {
-            outfile << ", ";
+            outfile << ",";
         }
     }
 
@@ -309,6 +311,41 @@ void inStore(const string &filename)
 
     infile.close();
     outfile.close();
+}
+
+void inEdit(const string &filename){
+    ifstream infile;
+    infile.open(filename);
+    ofstream tempfile;
+    tempfile.open("temp.txt", ios::out);
+    string line, keyword, confirm;
+    cout << "Please enter the keyword for the line that is to be updated/ deleted: ";
+    getline(cin, keyword);
+    while(getline(infile, line)){
+        if (line.find(keyword) != std::string::npos){
+            cout << "This line contains the keyword inputted." << endl;
+            cout << line << endl;
+            cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
+            getline(cin, confirm);
+            if (confirm == "1"){
+                inUpdate(filename);
+            }
+            else if (confirm =="2"){
+                inDelete(filename);
+            }
+        }
+        tempfile << line << endl;
+    }
+    infile.close();
+    tempfile.close();
+}
+
+void inUpdate(const string &filename){
+
+}
+
+void inDelete(const string &filename){
+
 }
 
 /// Taking out the string between '(' and ')'
