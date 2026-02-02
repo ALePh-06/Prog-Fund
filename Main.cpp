@@ -6,16 +6,25 @@
 #include <string>
 #include <limits>
 #include <cctype>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#endif
+
 using namespace std;
 
 string extractType(const string &s);   // extract column type
 string extractValue(const string &s);  // extract name
 bool isValidInt(const std::string &s); // check if input is valid int
 void viewSheet(string filename);
+bool directoryExists(const string &dirName);//directory check
+bool createDirectory(const string &dirName); //directory create
+string handleDirectory();
 void errorDemo();
-bool isValidType(string type)
+bool isValidType(string type) // Convert to uppercase
 {
-    // Convert to uppercase
+   
     for (char &c : type)
     {
         c = toupper(c);
@@ -142,9 +151,18 @@ void divider(string text);
 int main() // prompts filename and check
 {
     divider("STUDENT ATTENDANCE TRACKER - MILESTONE 1");
-    string filename;
-    cout << "Enter file name (please put '.txt' after the file name): ";
-    getline(cin, filename);
+    string folder = handleDirectory();
+if (folder.empty())
+{
+    cout << "Operation cancelled.\n";
+    return 0;
+}
+
+string filename;
+cout << "Enter file name (please put '.csv' after the file name): ";
+getline(cin, filename);
+
+filename = folder + "/" + filename;
 
     if (checkOrCreateCSV(filename))
     {
@@ -152,10 +170,10 @@ int main() // prompts filename and check
         string tempinputs;
         cout << "Please enter how many data do you want to insert into the sheet: " << endl;
         getline(cin, tempinputs);
-        while (!isValidInt(tempinputs))
+        while (!isValidInt(tempinputs) || stoi(tempinputs) <= 0)
         {
-            cout << "Please enter only integers:";
-            getline(cin, tempinputs);
+        cout << "Please enter a positive integer: ";
+        getline(cin, tempinputs);
         }
         inputs = stoi(tempinputs);
         for (int i = 0; i < inputs; i++)
@@ -176,6 +194,64 @@ int main() // prompts filename and check
 
     divider("End of Milestone 1 Output");
     return 0;
+}
+bool directoryExists(const string &dirName) 
+{
+    struct stat info;
+    if (stat(dirName.c_str(), &info) != 0)
+        return false;
+    return S_ISDIR(info.st_mode);
+}
+
+bool createDirectory(const string &dirName)
+{
+#ifdef _WIN32
+    return _mkdir(dirName.c_str()) == 0;
+#else
+    return mkdir(dirName.c_str(), 0777) == 0;
+#endif
+}
+
+string handleDirectory()
+{
+    string folder;
+    char choice;
+
+    while (true)
+    {
+        cout << "Enter folder name to store attendance file: ";
+        getline(cin, folder);
+
+        if (directoryExists(folder))
+        {
+            cout << "Folder exists. Using folder: " << folder << endl << endl;
+            return folder;
+        }
+        else
+        {
+            cout << "Folder does not exist. Create it? (y/n): ";
+            cin >> choice;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            if (choice == 'y' || choice == 'Y')
+            {
+                if (createDirectory(folder))
+                {
+                    cout << "Folder created successfully.\n\n";
+                    return folder;
+                }
+                else
+                {
+                    cout << "Error creating folder. Try again.\n\n";
+                }
+            }
+            else
+            {
+                cout << "Folder creation cancelled.\n\n";
+                return "";
+            }
+        }
+    }
 }
 
 // adds input into file
@@ -216,6 +292,7 @@ void inStore(const string &filename)
                 {
                     cout << "Invalid input. Please enter an integer: ";
                     getline(cin, tempStr);
+                    continue;
                 }
             }
             break;
