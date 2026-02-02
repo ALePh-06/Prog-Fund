@@ -7,6 +7,7 @@
 #include <limits>
 #include <cctype>
 #include <sys/stat.h>
+#include <cstdio>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -46,9 +47,10 @@ bool isValidColumnName(string name) // remove empty space
     return !name.empty();
 }
 void inStore(const string &filename);
-void inEdit(const string &filename);
+void inEdit(const string &filename, const string &folder);
 void inUpdate(const string &filename);
 void inDelete(const string &filename);
+void fileswap(const string &filename, const string &folder);
 
 bool checkOrCreateCSV(const string &filename)
 {
@@ -188,7 +190,7 @@ filename = folder + "/" + filename;
     {
         cout << "Operation cancelled.\n";
     }
-    inEdit(filename);
+    inEdit(filename, folder);
     divider("View Attendance Sheet (CSV Mode)");
     viewSheet(filename);
 
@@ -313,13 +315,14 @@ void inStore(const string &filename)
     outfile.close();
 }
 
-void inEdit(const string &filename){
+void inEdit(const string &filename, const string &folder){
+    string temp = folder + "/temp.csv";
     ifstream infile;
     infile.open(filename);
     ofstream tempfile;
-    tempfile.open("temp.txt", ios::out);
+    tempfile.open(temp, ios::out);
     string line, keyword, confirm;
-    cout << "Please enter the keyword for the line that is to be updated/ deleted: ";
+    cout << "Please enter the keyword for the line that is to be updated/deleted: ";
     getline(cin, keyword);
     while(getline(infile, line)){
         if (line.find(keyword) != std::string::npos){
@@ -338,6 +341,8 @@ void inEdit(const string &filename){
     }
     infile.close();
     tempfile.close();
+
+    fileswap(filename, temp);
 }
 
 void inUpdate(const string &filename){
@@ -346,6 +351,12 @@ void inUpdate(const string &filename){
 
 void inDelete(const string &filename){
 
+}
+
+void fileswap(const string &filename, const string &temp){
+    string finalname = filename;
+    remove(finalname.c_str());
+    rename(temp.c_str(), finalname.c_str());
 }
 
 /// Taking out the string between '(' and ')'
