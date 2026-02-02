@@ -24,7 +24,7 @@ string handleDirectory();
 void errorDemo();
 bool isValidType(string type) // Convert to uppercase
 {
-   
+
     for (char &c : type)
     {
         c = toupper(c);
@@ -195,7 +195,7 @@ filename = folder + "/" + filename;
     divider("End of Milestone 1 Output");
     return 0;
 }
-bool directoryExists(const string &dirName) 
+bool directoryExists(const string &dirName)
 {
     struct stat info;
     if (stat(dirName.c_str(), &info) != 0)
@@ -378,3 +378,7 @@ void errorDemo()
              << endl;
     }
 }
+
+// Delete part (Muiz)
+
+
