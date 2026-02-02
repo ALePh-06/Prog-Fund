@@ -327,10 +327,17 @@ void inEdit(const string &filename){
             cout << line << endl;
             cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
             getline(cin, confirm);
-            
+            if (confirm == "1"){
+                inUpdate(filename);
+            }
+            else if (confirm =="2"){
+                inDelete(filename);
+            }
         }
+        tempfile << line << endl;
     }
-
+    infile.close();
+    tempfile.close();
 }
 
 void inUpdate(const string &filename){
