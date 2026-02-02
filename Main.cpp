@@ -25,35 +25,50 @@ bool isValidType(string type) {
     return (type == "INT" || type == "STRING");
 }
 
-string handleDirectory() {
+string handleDirectory()
+{
     string dirName;
-    while (true) {
+
+    while (true)
+    {
         cout << "Enter the category (folder) name: ";
         getline(cin, dirName);
 
-        if (fs::exists(dirName)) {
-            if (fs::is_directory(dirName)) {
+        if (fs::exists(dirName))
+        {
+            if (fs::is_directory(dirName))
+            {
                 cout << "Folder found. Entering '" << dirName << "'...\n";
                 return dirName;
-            } else {
+            }
+            else
+            {
                 cout << "Error: A file with this name already exists, but it's not a folder.\n";
             }
-        } else {
+        }
+        else
+        {
             char choice;
             cout << "Folder does not exist. Create and enter it? (y/n): ";
             cin >> choice;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-            if (choice == 'y' || choice == 'Y') {
-                if (fs::create_directory(dirName)) {
+            if (choice == 'y' || choice == 'Y')
+            {
+                if (fs::create_directory(dirName))
+                {
                     cout << "Folder created successfully.\n";
                     return dirName;
                 }
             }
-            cout << "Please enter a valid folder name to proceed.\n";
+            else
+            {
+                return ""; // user chose not to create
+            }
         }
     }
 }
+
 
 bool isValidColumnName(string name) //remove empty space
 {
