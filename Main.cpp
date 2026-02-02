@@ -6,6 +6,9 @@
 #include <string>
 #include <limits>
 #include <cctype>
+#include <filesystem>
+
+namespace fs= std::filesystem; //filesystem library
 using namespace std;
 
 string extractType(const string &s);   // extract column type
@@ -13,6 +16,7 @@ string extractValue(const string &s);  // extract name
 bool isValidInt(const std::string &s); // check if input is valid int
 void viewSheet(string filename);
 void errorDemo();
+string handleDirectory();
 bool isValidType(string type)
 {
     // Convert to uppercase
@@ -22,6 +26,36 @@ bool isValidType(string type)
     }
 
     return (type == "INT" || type == "STRING");
+}
+
+string handleDirectory() {
+    string dirName;
+    while (true) {
+        cout << "Enter the category (folder) name: ";
+        getline(cin, dirName);
+
+        if (fs::exists(dirName)) {
+            if (fs::is_directory(dirName)) {
+                cout << "Folder found. Entering '" << dirName << "'...\n";
+                return dirName;
+            } else {
+                cout << "Error: A file with this name already exists, but it's not a folder.\n";
+            }
+        } else {
+            char choice;
+            cout << "Folder does not exist. Create and enter it? (y/n): ";
+            cin >> choice;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+
+            if (choice == 'y' || choice == 'Y') {
+                if (fs::create_directory(dirName)) {
+                    cout << "Folder created successfully.\n";
+                    return dirName;
+                }
+            }
+            cout << "Please enter a valid folder name to proceed.\n";
+        }
+    }
 }
 
 bool isValidColumnName(string name) // remove empty space
@@ -90,6 +124,40 @@ bool checkOrCreateCSV(const string &filename)
 
     cout << endl;
 
+
+
+    for (int i = 0; i < column; i++) 
+    {
+        string name, type;
+
+while (true)
+ {
+    cout << "Enter column " << i + 1 << " name: ";
+    getline(cin, name);
+        while (true)
+        {
+            cout << "Enter column " << i + 1 << " name: ";
+            getline(cin, name);
+
+    if (isValidColumnName(name)) 
+    {
+        cout << "Enter number of columns (1-10): ";
+        getline(cin, temp);
+
+        if (isValidInt(temp))
+        {
+            column = stoi(temp);
+            if (column > 0 && column <= 10)
+            {
+                break;
+            }
+        }
+
+        cout << "Invalid input. Please enter an integer between 1 and 10.\n";
+    }
+
+    cout << endl;
+
     for (int i = 0; i < column; i++)
     {
         string name, type;
@@ -139,11 +207,16 @@ bool checkOrCreateCSV(const string &filename)
 
 void divider(string text);
 
-int main() // prompts filename and check
-{
-    divider("STUDENT ATTENDANCE TRACKER - MILESTONE 1");
+
+int main() //prompts filename and check
+   {
+        divider("STUDENT ATTENDANCE TRACKER - MILESTONE 1");
+    // 1. Ask for folder first
+    string folder = handleDirectory();
+
+    // 2. Ask for file
     string filename;
-    cout << "Enter file name (please put '.txt' after the file name): ";
+    cout << "Enter file name (e.g., student_data.csv): ";
     getline(cin, filename);
 
     if (checkOrCreateCSV(filename))
@@ -165,6 +238,13 @@ int main() // prompts filename and check
     }
     else
     {
+    // 3. Combine folder and filename (e.g., "Category/file.csv")
+    string fullPath = folder + "/" + filename;
+
+    // 4. Run your existing logic using fullPath instead of filename
+    if (checkOrCreateCSV(fullPath)) {
+        inStore(fullPath);
+    } else {
         cout << "Operation cancelled.\n";
     }
 
