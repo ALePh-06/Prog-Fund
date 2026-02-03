@@ -48,7 +48,7 @@ bool isValidColumnName(string name) // remove empty space
 }
 void inStore(const string &filename);
 void inEdit(const string &filename, const string &folder);
-void inUpdate(const string &filename, string &line, const string &folder);
+string inUpdate(const string &filename, string &line);
 void fileswap(const string &filename, const string &folder);
 void inDelete (string &temp, string &line);
 
@@ -142,9 +142,9 @@ bool checkOrCreateCSV(const string &filename)
         if (i < column - 1)
             outfile << ",";
 
-        cout << endl;
-    }
 
+    }
+    outfile << "\n";
     outfile.close();
     cout << "File created successfully.\n"
          << endl;
@@ -164,27 +164,54 @@ if (folder.empty())
 }
 
 string filename;
-cout << "Enter file name (please put '.csv' after the file name): ";
-getline(cin, filename);
+
+while (true)
+{
+    cout << "Enter file name (please put '.csv' after the file name): ";
+    getline(cin, filename);
+
+    // Prevent empty or spaces-only input
+    if (filename.find_first_not_of(" \t") == string::npos)
+    {
+        cout << "File name cannot be empty. Please try again.\n";
+        continue;
+    }
+
+    //Enforce .csv extension
+    if (filename.size() < 4 || filename.substr(filename.size() - 4) != ".csv")
+    {
+        cout << "File name must end with .csv\n";
+        continue;
+    }
+
+    break;
+}
 
 filename = folder + "/" + filename;
+
 
     if (checkOrCreateCSV(filename))
     {
         int inputs;
-        string tempinputs;
-        cout << "Please enter how many data do you want to insert into the sheet: " << endl;
+        string tempinputs, confirm;
+        cout << "Do you want to add new entry to the sheet? Y to confirm, else to cancel" << endl;
         getline(cin, tempinputs);
-        while (!isValidInt(tempinputs) || stoi(tempinputs) <= 0)
+        if (tempinputs == "Y" || tempinputs == "y")
+        {
+            cout << "How many entry do you want to add?" << endl;
+            getline(cin, confirm);
+             while (!isValidInt(confirm) || stoi(confirm) <= 0)
         {
         cout << "Please enter a positive integer: ";
-        getline(cin, tempinputs);
+        getline(cin, confirm);
         }
-        inputs = stoi(tempinputs);
+        inputs = stoi(confirm);
         for (int i = 0; i < inputs; i++)
         {
             inStore(filename);
         }
+        }
+       
     }
     else
     {
@@ -226,7 +253,12 @@ string handleDirectory()
     {
         cout << "Enter folder name to store attendance file: ";
         getline(cin, folder);
-
+        
+        if (folder.find_first_not_of("\t")== string::npos)
+        {
+            cout<<"Folder name is empty. Please give a name.\n\n";
+            continue;
+        }
         if (directoryExists(folder))
         {
             cout << "Folder exists. Using folder: " << folder << endl << endl;
@@ -279,7 +311,6 @@ void inStore(const string &filename)
 
     column = data.size();
     input.resize(column); /// resizing input vector to match the number of column in file
-    outfile << "\n";
     divider("Insert New Attendance Row");
     for (int i = 0; i < column; i++)
     {
@@ -308,6 +339,7 @@ void inStore(const string &filename)
             outfile << ",";
         }
     }
+    outfile << "\n";
 
     cout << endl;
 
@@ -335,10 +367,16 @@ void inEdit(const string &filename, const string &folder){
             cout << line << endl;
             cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
             getline(cin, confirm);
-            if (confirm =="2")
+            if (confirm =="1")
+            {        
+            string out = inUpdate(filename, line);
+            tempfile << out << endl;
+            }   
+            else if (confirm == "2")
             {
                 continue;
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
             else if (confirm =="2"){
                     continue;
@@ -348,6 +386,9 @@ void inEdit(const string &filename, const string &folder){
                     tempfile << line << endl;
                 }
 =======
+=======
+
+>>>>>>> a0b0ca9c2442b9e1cdd7687acb4a12157b8ad60e
             else
             {
                 tempfile << line << endl;
@@ -365,10 +406,7 @@ void inEdit(const string &filename, const string &folder){
     fileswap(filename, temp);
 }
 
-void inUpdate(const string &filename, string &line, const string &folder){
-    string temp = folder + "/temp.csv";
-    ofstream tempfile;
-    tempfile.open(temp, ios::app);
+string inUpdate(const string &filename, string &line){
     ifstream infile;
     infile.open(filename);
     string temtem, fRow;
@@ -408,15 +446,17 @@ void inUpdate(const string &filename, string &line, const string &folder){
             }
             break;
         }
-        input[i] = tempStr;
-        tempfile << input[i]; /// appending input into the file
-        if (i < column - 1)
-        {
-            tempfile << ",";
+        data[i] = tempStr;/// appending input into the file
+    }
+    infile.close();
+    string out;
+    for (size_t i=0; i < data.size(); ++i){
+        out += data[i];
+        if(i !=data.size() -1){
+            out+=",";
         }
     }
-    tempfile << endl;
-    infile.close();
+    return out;
 }
 
 void fileswap(const string &filename, const string &temp){
