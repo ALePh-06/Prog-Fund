@@ -48,7 +48,7 @@ bool isValidColumnName(string name) // remove empty space
 }
 void inStore(const string &filename);
 void inEdit(const string &filename, const string &folder);
-void inUpdate(const string &filename, string &line, const string &folder);
+string inUpdate(const string &filename, string &line);
 void fileswap(const string &filename, const string &folder);
 
 bool checkOrCreateCSV(const string &filename)
@@ -141,9 +141,9 @@ bool checkOrCreateCSV(const string &filename)
         if (i < column - 1)
             outfile << ",";
 
-        cout << endl;
-    }
 
+    }
+    outfile << "\n";
     outfile.close();
     cout << "File created successfully.\n"
          << endl;
@@ -171,19 +171,25 @@ filename = folder + "/" + filename;
     if (checkOrCreateCSV(filename))
     {
         int inputs;
-        string tempinputs;
-        cout << "Please enter how many data do you want to insert into the sheet: " << endl;
+        string tempinputs, confirm;
+        cout << "Do you want to add new entry to the sheet? Y to confirm, else to cancel" << endl;
         getline(cin, tempinputs);
-        while (!isValidInt(tempinputs) || stoi(tempinputs) <= 0)
+        if (tempinputs == "Y" || tempinputs == "y")
+        {
+            cout << "How many entry do you want to add?" << endl;
+            getline(cin, confirm);
+             while (!isValidInt(confirm) || stoi(confirm) <= 0)
         {
         cout << "Please enter a positive integer: ";
-        getline(cin, tempinputs);
+        getline(cin, confirm);
         }
-        inputs = stoi(tempinputs);
+        inputs = stoi(confirm);
         for (int i = 0; i < inputs; i++)
         {
             inStore(filename);
         }
+        }
+       
     }
     else
     {
@@ -278,7 +284,6 @@ void inStore(const string &filename)
 
     column = data.size();
     input.resize(column); /// resizing input vector to match the number of column in file
-    outfile << "\n";
     divider("Insert New Attendance Row");
     for (int i = 0; i < column; i++)
     {
@@ -307,6 +312,7 @@ void inStore(const string &filename)
             outfile << ",";
         }
     }
+    outfile << "\n";
 
     cout << endl;
 
@@ -323,6 +329,8 @@ void inEdit(const string &filename, const string &folder){
     string line, keyword, confirm;
     cout << "Please enter the keyword for the line that is to be updated/deleted: ";
     getline(cin, keyword);
+    getline(infile, line);
+    tempfile << line << endl;
     while(getline(infile, line)){
 
         if (line.find(keyword) != std::string::npos){
@@ -330,10 +338,16 @@ void inEdit(const string &filename, const string &folder){
             cout << line << endl;
             cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
             getline(cin, confirm);
-            if (confirm =="2")
+            if (confirm =="1")
+            {        
+            string out = inUpdate(filename, line);
+            tempfile << out << endl;
+            }   
+            else if (confirm == "2")
             {
                 continue;
             }
+
             else
             {
                 tempfile << line << endl;
@@ -350,10 +364,7 @@ void inEdit(const string &filename, const string &folder){
     fileswap(filename, temp);
 }
 
-void inUpdate(const string &filename, string &line, const string &folder){
-    string temp = folder + "/temp.csv";
-    ofstream tempfile;
-    tempfile.open(temp, ios::app);
+string inUpdate(const string &filename, string &line){
     ifstream infile;
     infile.open(filename);
     string temtem, fRow;
@@ -393,15 +404,17 @@ void inUpdate(const string &filename, string &line, const string &folder){
             }
             break;
         }
-        input[i] = tempStr;
-        tempfile << input[i]; /// appending input into the file
-        if (i < column - 1)
-        {
-            tempfile << ",";
+        data[i] = tempStr;/// appending input into the file
+    }
+    infile.close();
+    string out;
+    for (size_t i=0; i < data.size(); ++i){
+        out += data[i];
+        if(i !=data.size() -1){
+            out+=",";
         }
     }
-    tempfile << endl;
-    infile.close();
+    return out;
 }
 
 void fileswap(const string &filename, const string &temp){
