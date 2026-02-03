@@ -350,29 +350,25 @@ void inEdit(const string &filename, const string &folder){
     cout << "Please enter the keyword for the line that is to be updated/deleted: ";
     getline(cin, keyword);
     while(getline(infile, line)){
+
         if (line.find(keyword) != std::string::npos){
             cout << "This line contains the keyword inputted." << endl;
             cout << line << endl;
             cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
             getline(cin, confirm);
-            if (confirm == "1"){
-                inUpdate(filename, line, folder);
+            if (confirm =="2")
+            {
+                continue;
             }
-            else if (confirm =="2"){
-                string confirm;
-                cout << "Are you certain to delete this line? 1/Y to confirm, else for cancel" << endl;
-                getline(cin, confirm);
-                if (confirm != "1" && confirm != "Y" && confirm != "y")
-                {
-                    tempfile << line << endl;
-                }
+            else
+            {
+                tempfile << line << endl;
             }
         }
         else
         {
         tempfile << line << endl;
         }
-
     }
     infile.close();
     tempfile.close();
