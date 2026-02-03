@@ -163,10 +163,31 @@ if (folder.empty())
 }
 
 string filename;
-cout << "Enter file name (please put '.csv' after the file name): ";
-getline(cin, filename);
+
+while (true)
+{
+    cout << "Enter file name (please put '.csv' after the file name): ";
+    getline(cin, filename);
+
+    // Prevent empty or spaces-only input
+    if (filename.find_first_not_of(" \t") == string::npos)
+    {
+        cout << "File name cannot be empty. Please try again.\n";
+        continue;
+    }
+
+    //Enforce .csv extension
+    if (filename.size() < 4 || filename.substr(filename.size() - 4) != ".csv")
+    {
+        cout << "File name must end with .csv\n";
+        continue;
+    }
+
+    break;
+}
 
 filename = folder + "/" + filename;
+
 
     if (checkOrCreateCSV(filename))
     {
@@ -225,7 +246,12 @@ string handleDirectory()
     {
         cout << "Enter folder name to store attendance file: ";
         getline(cin, folder);
-
+        
+        if (folder.find_first_not_of("\t")== string::npos)
+        {
+            cout<<"Folder name is empty. Please give a name.\n\n";
+            continue;
+        }
         if (directoryExists(folder))
         {
             cout << "Folder exists. Using folder: " << folder << endl << endl;
