@@ -50,7 +50,6 @@ void inStore(const string &filename);
 void inEdit(const string &filename, const string &folder);
 string inUpdate(const string &filename, string &line);
 void fileswap(const string &filename, const string &folder);
-void inDelete (string &temp, string &line);
 
 bool checkOrCreateCSV(const string &filename)
 {
@@ -352,10 +351,8 @@ void inEdit(const string &filename, const string &folder){
     ifstream infile;
     infile.open(filename);
     ofstream tempfile;
-    tempfile.open(temp, ios::out | ios::trunc);
-
+    tempfile.open(temp, ios::app);
     string line, keyword, confirm;
-
     cout << "Please enter the keyword for the line that is to be updated/deleted: ";
     getline(cin, keyword);
     getline(infile, line);
@@ -376,24 +373,11 @@ void inEdit(const string &filename, const string &folder){
             {
                 continue;
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
-            else if (confirm =="2"){
-                    continue;
-            }
-            else
-                {
-                    tempfile << line << endl;
-                }
-=======
-=======
 
->>>>>>> a0b0ca9c2442b9e1cdd7687acb4a12157b8ad60e
             else
             {
                 tempfile << line << endl;
             }
->>>>>>> main
         }
         else
         {
