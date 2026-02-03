@@ -340,13 +340,11 @@ void inEdit(const string &filename, const string &folder){
                 {
                     tempfile << line << endl;
                 }
-
-
             }
         }
         else
         {
-            tempfile << line << endl;
+        tempfile << line << endl;
         }
 
     }
@@ -483,7 +481,3 @@ void errorDemo()
              << endl;
     }
 }
-
-// Delete part (Muiz)
-
-
