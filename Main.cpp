@@ -335,9 +335,11 @@ void inEdit(const string &filename, const string &folder){
             cout << line << endl;
             cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
             getline(cin, confirm);
-            if (confirm == "1"){
-                inUpdate(filename, line, folder);
+            if (confirm =="2")
+            {
+                continue;
             }
+<<<<<<< HEAD
             else if (confirm =="2"){
                     continue;
             }
@@ -345,12 +347,17 @@ void inEdit(const string &filename, const string &folder){
                 {
                     tempfile << line << endl;
                 }
+=======
+            else
+            {
+                tempfile << line << endl;
+            }
+>>>>>>> main
         }
         else
         {
         tempfile << line << endl;
         }
-
     }
     infile.close();
     tempfile.close();
