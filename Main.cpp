@@ -6,16 +6,26 @@
 #include <string>
 #include <limits>
 #include <cctype>
+#include <sys/stat.h>
+#include <cstdio>
+
+#ifdef _WIN32
+#include <direct.h>
+#endif
+
 using namespace std;
 
 string extractType(const string &s);   // extract column type
 string extractValue(const string &s);  // extract name
 bool isValidInt(const std::string &s); // check if input is valid int
 void viewSheet(string filename);
+bool directoryExists(const string &dirName); // directory check
+bool createDirectory(const string &dirName); // directory create
+string handleDirectory();
 void errorDemo();
-bool isValidType(string type)
+bool isValidType(string type) // Convert to uppercase
 {
-    // Convert to uppercase
+
     for (char &c : type)
     {
         c = toupper(c);
@@ -37,6 +47,9 @@ bool isValidColumnName(string name) // remove empty space
     return !name.empty();
 }
 void inStore(const string &filename);
+void inEdit(const string &filename, const string &folder);
+void inUpdate(const string &filename, string &line, const string &folder);
+void fileswap(const string &filename, const string &folder);
 
 bool checkOrCreateCSV(const string &filename)
 {
@@ -126,7 +139,7 @@ bool checkOrCreateCSV(const string &filename)
         outfile << name << "(" << type << ")";
 
         if (i < column - 1)
-            outfile << ", ";
+            outfile << ",";
 
         cout << endl;
     }
@@ -142,9 +155,18 @@ void divider(string text);
 int main() // prompts filename and check
 {
     divider("STUDENT ATTENDANCE TRACKER - MILESTONE 1");
+    string folder = handleDirectory();
+    if (folder.empty())
+    {
+        cout << "Operation cancelled.\n";
+        return 0;
+    }
+
     string filename;
-    cout << "Enter file name (please put '.txt' after the file name): ";
+    cout << "Enter file name (please put '.csv' after the file name): ";
     getline(cin, filename);
+
+    filename = folder + "/" + filename;
 
     if (checkOrCreateCSV(filename))
     {
@@ -152,7 +174,7 @@ int main() // prompts filename and check
         string tempinputs;
         cout << "Please enter how many data do you want to insert into the sheet: " << endl;
         getline(cin, tempinputs);
-        while (!isValidInt(tempinputs))
+        while (!isValidInt(tempinputs) || stoi(tempinputs) <= 0)
         {
             cout << "Please enter only integers: ";
             getline(cin, tempinputs);
@@ -167,7 +189,7 @@ int main() // prompts filename and check
     {
         cout << "Operation cancelled.\n";
     }
-
+    inEdit(filename, folder);
     divider("View Attendance Sheet (CSV Mode)");
     viewSheet(filename);
 
@@ -176,6 +198,65 @@ int main() // prompts filename and check
 
     divider("End of Milestone 1 Output");
     return 0;
+}
+bool directoryExists(const string &dirName)
+{
+    struct stat info;
+    if (stat(dirName.c_str(), &info) != 0)
+        return false;
+    return S_ISDIR(info.st_mode);
+}
+
+bool createDirectory(const string &dirName)
+{
+#ifdef _WIN32
+    return _mkdir(dirName.c_str()) == 0;
+#else
+    return mkdir(dirName.c_str(), 0777) == 0;
+#endif
+}
+
+string handleDirectory()
+{
+    string folder;
+    char choice;
+
+    while (true)
+    {
+        cout << "Enter folder name to store attendance file: ";
+        getline(cin, folder);
+
+        if (directoryExists(folder))
+        {
+            cout << "Folder exists. Using folder: " << folder << endl
+                 << endl;
+            return folder;
+        }
+        else
+        {
+            cout << "Folder does not exist. Create it? (y/n): ";
+            cin >> choice;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            if (choice == 'y' || choice == 'Y')
+            {
+                if (createDirectory(folder))
+                {
+                    cout << "Folder created successfully.\n\n";
+                    return folder;
+                }
+                else
+                {
+                    cout << "Error creating folder. Try again.\n\n";
+                }
+            }
+            else
+            {
+                cout << "Folder creation cancelled.\n\n";
+                return "";
+            }
+        }
+    }
 }
 
 // adds input into file
@@ -215,7 +296,7 @@ void inStore(const string &filename)
                 if (!isValidInt(tempStr))
                 {
                     cout << "Invalid input. Please enter an integer: ";
-                    getline(cin, tempStr);
+                    continue;
                 }
             }
             break;
@@ -224,7 +305,7 @@ void inStore(const string &filename)
         outfile << input[i]; /// appending input into the file
         if (i < column - 1)
         {
-            outfile << ", ";
+            outfile << ",";
         }
     }
 
@@ -232,6 +313,111 @@ void inStore(const string &filename)
 
     infile.close();
     outfile.close();
+}
+
+void inEdit(const string &filename, const string &folder)
+{
+    string temp = folder + "/temp.csv";
+    ifstream infile;
+    infile.open(filename);
+    ofstream tempfile;
+    tempfile.open(temp, ios::app);
+    string line, keyword, confirm;
+    cout << "Please enter the keyword for the line that is to be updated/deleted: ";
+    getline(cin, keyword);
+    while (getline(infile, line))
+    {
+        if (line.find(keyword) != std::string::npos)
+        {
+            cout << "This line contains the keyword inputted." << endl;
+            cout << line << endl;
+            cout << "Do you want to update or delete this line? Enter '1' to update, '2' to delete, else to cancel." << endl;
+            getline(cin, confirm);
+            if (confirm == "1")
+            {
+                inUpdate(filename, line, folder);
+            }
+            else if (confirm == "2")
+            {
+                string confirm;
+                cout << "Are you certain to delete this line? 1/Y to confirm, else for cancel" << endl;
+                getline(cin, confirm);
+                if (confirm != "1" && confirm != "Y" && confirm != "y")
+                {
+                    tempfile << line << endl;
+                }
+            }
+        }
+        else
+        {
+            tempfile << line << endl;
+        }
+    }
+    infile.close();
+    tempfile.close();
+
+    fileswap(filename, temp);
+}
+
+void inUpdate(const string &filename, string &line, const string &folder)
+{
+    string temp = folder + "/temp.csv";
+    ofstream tempfile;
+    tempfile.open(temp, ios::app);
+    ifstream infile;
+    infile.open(filename);
+    string temtem, fRow;
+    getline(infile, fRow);
+
+    int column, i;
+    vector<string> data, input;
+    stringstream s;
+    s << fRow;
+    /// Insert the segmented line into a vector
+    while (getline(s, temtem, ','))
+    {
+        data.push_back(temtem);
+    }
+
+    column = data.size();
+    input.resize(column);
+
+    for (int i = 0; i < column; i++)
+    {
+        string type = extractType(data[i]);   /// getting the column type
+        string value = extractValue(data[i]); /// getting the column name
+        string tempStr;
+        cout << "Please enter the " << value << " (" << type << ")" << ":";
+        while (true)
+        {
+            getline(cin, tempStr);
+
+            if (type == "INT")
+            { /// input sanity check
+                if (!isValidInt(tempStr))
+                {
+                    cout << "Invalid input. Please enter an integer: ";
+                    continue;
+                }
+            }
+            break;
+        }
+        input[i] = tempStr;
+        tempfile << input[i]; /// appending input into the file
+        if (i < column - 1)
+        {
+            tempfile << ",";
+        }
+    }
+    tempfile << endl;
+    infile.close();
+}
+
+void fileswap(const string &filename, const string &temp)
+{
+    string finalname = filename;
+    remove(finalname.c_str());
+    rename(temp.c_str(), finalname.c_str());
 }
 
 /// Taking out the string between '(' and ')'
@@ -301,3 +487,5 @@ void errorDemo()
              << endl;
     }
 }
+
+// Delete part (Muiz)
