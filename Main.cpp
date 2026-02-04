@@ -23,7 +23,7 @@ bool directoryExists(const string &dirName); // directory check
 bool createDirectory(const string &dirName); // directory create
 string handleDirectory();
 void errorDemo();
-bool sheetModification();
+void sheetModification(const string &filename, const string &folder);
 bool isValidType(string type); // Convert to uppercase
 
 bool isValidColumnName(string name); // remove empty space
@@ -32,104 +32,10 @@ void inEdit(const string &filename, const string &folder);
 string inUpdate(const string &filename, string &line);
 void fileswap(const string &filename, const string &folder);
 
-bool checkOrCreateCSV(const string &filename)
-{
-    ifstream infile(filename); // if exist, add data to new row
-    if (infile.good())
-    {
-        infile.close();
-        cout << "File exists. Opening file...\n";
-        return true;
-    }
-    infile.close();
-
-    // File does not exist → ask user
-    char choice;
-    cout << "File does not exist.\n";
-    cout << "Do you want to create it? (y/n): ";
-    cin >> choice;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    if (choice != 'y' && choice != 'Y')
-    {
-        return false;
-    }
-
-    ofstream outfile(filename); // opens file
-    if (!outfile.is_open())
-    {
-        cerr << "Error creating file.\n";
-        return false;
-    }
-
-    int column;
-    string temp;
-
-    while (true)
-    {
-        cout << "Enter number of columns (1-10): ";
-        getline(cin, temp);
-
-        if (isValidInt(temp))
-        {
-            column = stoi(temp);
-            if (column > 0 && column <= 10)
-            {
-                break;
-            }
-        }
-
-        cout << "Invalid input. Please enter an integer between 1 and 10.\n";
-    }
-
-    cout << endl;
-
-    for (int i = 0; i < column; i++)
-    {
-        string name, type;
-
-        while (true)
-        {
-            cout << "Enter column " << i + 1 << " name: ";
-            getline(cin, name);
-
-            if (isValidColumnName(name))
-            {
-                break;
-            }
-
-            cout << "Column name cannot be empty. Please try again.\n";
-        }
-
-        while (true)
-        {
-            cout << "Enter column " << i + 1 << " type (INT or STRING): ";
-            getline(cin, type);
-
-            if (isValidType(type))
-            {
-                // normalize to uppercase before storing
-                for (char &c : type)
-                    c = toupper(c);
-                break;
-            }
-
-            cout << "Invalid type. Please enter INT or STRING only.\n";
-        }
-
-        outfile << name << "(" << type << ")";
-
-        if (i < column - 1)
-            outfile << ",";
-    }
-    outfile << "\n";
-    outfile.close();
-    cout << "File created successfully.\n"
-         << endl;
-    return true;
-}
+bool checkOrCreateCSV(const string &filename);
 
 void divider(string text);
+void addToSheet(const string &filename);
 
 int main() // prompts filename and check
 {
@@ -169,25 +75,7 @@ int main() // prompts filename and check
 
     if (checkOrCreateCSV(filename))
     {
-        int inputs;
-        string tempinputs, confirm;
-        cout << "Do you want to add new entry to the sheet? Y to confirm, else to cancel" << endl;
-        getline(cin, tempinputs);
-        if (tempinputs == "Y" || tempinputs == "y")
-        {
-            cout << "How many entry do you want to add?" << endl;
-            getline(cin, confirm);
-            while (!isValidInt(confirm) || stoi(confirm) <= 0)
-            {
-                cout << "Please enter a positive integer: ";
-                getline(cin, confirm);
-            }
-            inputs = stoi(confirm);
-            for (int i = 0; i < inputs; i++)
-            {
-                inStore(filename);
-            }
-        }
+        addToSheet(filename);
     }
     else
     {
@@ -198,22 +86,21 @@ int main() // prompts filename and check
     {
         char choice;
 
-        cout << "Would you like to view the sheet? (y/n)" << endl;
+        cout << endl
+             << "Would you like to view the sheet? (y/n)" << endl;
         cin >> choice;
 
         if (choice == 'y' || choice == 'Y')
         {
             viewSheet(filename);
 
-            sheetModification();
+            sheetModification(filename, folder);
         }
         else
         {
             break;
         }
     }
-
-    inEdit(filename, folder);
 
     divider("Advanced Error Handling Demo");
     errorDemo();
@@ -633,16 +520,15 @@ bool checkOrCreateCSV(const string &filename)
 
         if (i < column - 1)
             outfile << ",";
-
-        cout << endl;
     }
-
+    outfile << "\n";
     outfile.close();
     cout << "File created successfully.\n"
          << endl;
     return true;
 }
-bool sheetModification()
+
+void sheetModification(const string &filename, const string &folder)
 {
     char choice;
     bool logic = true;
@@ -655,23 +541,52 @@ bool sheetModification()
              << endl
              << "1) Add" << endl
              << "2) Edit" << endl
-             << "3) Cancel" << endl
+             << "3) View Sheet" << endl
+             << "4) Cancel" << endl
              << endl;
         cin >> choice;
 
         switch (choice)
         {
         case '1':
+            addToSheet(filename);
             break;
         case '2':
+            inEdit(filename, folder);
             break;
         case '3':
+            viewSheet(filename);
+            break;
+        case '4':
             logic = false;
             break;
         default:
             cout << "Error, choice was not listed in the options provided" << endl
                  << endl;
             break;
+        }
+    }
+}
+
+void addToSheet(const string &filename)
+{
+    int inputs;
+    string tempinputs, confirm;
+    cout << "Do you want to add new entry to the sheet? Y to confirm, else to cancel" << endl;
+    cin >> tempinputs;
+    if (tempinputs == "Y" || tempinputs == "y")
+    {
+        cout << "How many entry do you want to add?" << endl;
+        getline(cin, confirm);
+        while (!isValidInt(confirm) || stoi(confirm) <= 0)
+        {
+            cout << "Please enter a positive integer: ";
+            getline(cin, confirm);
+        }
+        inputs = stoi(confirm);
+        for (int i = 0; i < inputs; i++)
+        {
+            inStore(filename);
         }
     }
 }
