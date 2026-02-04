@@ -74,19 +74,12 @@ int main() // prompts filename and check
 
     filename = folder + "/" + filename;
 
-    if (checkOrCreateCSV(filename))
-    {
-        addToSheet(filename);
-    }
-    else
+    if (!checkOrCreateCSV(filename))
     {
         cout << "Operation cancelled.\n";
     }
 
     sheetModification(filename, folder);
-
-    divider("Advanced Error Handling Demo");
-    errorDemo();
 
     divider("End of Milestone 2 Output");
     return 0;
@@ -214,6 +207,8 @@ void inStore(const string &filename)
 
 void inEdit(const string &filename, const string &folder)
 {
+    divider("Sheet Edit/Delete");
+
     string temp = folder + "/temp.csv";
     ifstream infile;
     infile.open(filename);
@@ -257,6 +252,8 @@ void inEdit(const string &filename, const string &folder)
     tempfile.close();
 
     fileswap(filename, temp);
+
+    viewSheet(filename);
 }
 
 string inUpdate(const string &filename, string &line)
@@ -380,8 +377,10 @@ void errorDemo()
 {
     string tempInt;
 
+    divider("Advanced Error Handling Demo");
+
     cout << "Enter ID (int): ";
-    getline(cin, tempInt);
+    cin >> tempInt;
 
     if (!isValidInt(tempInt))
     {
@@ -580,6 +579,8 @@ void addToSheet(const string &filename)
             inStore(filename);
         }
     }
+
+    viewSheet(filename);
 }
 void count(const string &filename)
 {
