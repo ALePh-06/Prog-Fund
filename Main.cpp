@@ -23,138 +23,22 @@ bool directoryExists(const string &dirName); // directory check
 bool createDirectory(const string &dirName); // directory create
 string handleDirectory();
 void errorDemo();
-bool isValidType(string type) // Convert to uppercase
-{
+bool sheetModification();
+bool isValidType(string type); // Convert to uppercase
 
-    for (char &c : type)
-    {
-        c = toupper(c);
-    }
-
-    return (type == "INT" || type == "STRING");
-}
-
-bool isValidColumnName(string name) // remove empty space
-{
-
-    size_t start = name.find_first_not_of(" \t");
-    if (start == string::npos)
-        return false;
-
-    size_t end = name.find_last_not_of(" \t");
-    name = name.substr(start, end - start + 1);
-
-    return !name.empty();
-}
+bool isValidColumnName(string name); // remove empty space
 void inStore(const string &filename);
 void inEdit(const string &filename, const string &folder);
 void inUpdate(const string &filename, string &line, const string &folder);
 void fileswap(const string &filename, const string &folder);
 
-bool checkOrCreateCSV(const string &filename)
-{
-    ifstream infile(filename); // if exist, add data to new row
-    if (infile.good())
-    {
-        infile.close();
-        cout << "File exists. Opening file...\n";
-        return true;
-    }
-    infile.close();
-
-    // File does not exist → ask user
-    char choice;
-    cout << "File does not exist.\n";
-    cout << "Do you want to create it? (y/n): ";
-    cin >> choice;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    if (choice != 'y' && choice != 'Y')
-    {
-        return false;
-    }
-
-    ofstream outfile(filename); // opens file
-    if (!outfile.is_open())
-    {
-        cerr << "Error creating file.\n";
-        return false;
-    }
-
-    int column;
-    string temp;
-
-    while (true)
-    {
-        cout << "Enter number of columns (1-10): ";
-        getline(cin, temp);
-
-        if (isValidInt(temp))
-        {
-            column = stoi(temp);
-            if (column > 0 && column <= 10)
-            {
-                break;
-            }
-        }
-
-        cout << "Invalid input. Please enter an integer between 1 and 10.\n";
-    }
-
-    cout << endl;
-
-    for (int i = 0; i < column; i++)
-    {
-        string name, type;
-
-        while (true)
-        {
-            cout << "Enter column " << i + 1 << " name: ";
-            getline(cin, name);
-
-            if (isValidColumnName(name))
-            {
-                break;
-            }
-
-            cout << "Column name cannot be empty. Please try again.\n";
-        }
-
-        while (true)
-        {
-            cout << "Enter column " << i + 1 << " type (INT or STRING): ";
-            getline(cin, type);
-
-            if (isValidType(type))
-            {
-                // normalize to uppercase before storing
-                for (char &c : type)
-                    c = toupper(c);
-                break;
-            }
-
-            cout << "Invalid type. Please enter INT or STRING only.\n";
-        }
-
-        outfile << name << "(" << type << ")";
-
-        if (i < column - 1)
-            outfile << ",";
-
-        cout << endl;
-    }
-
-    outfile.close();
-    cout << "File created successfully.\n"
-         << endl;
-    return true;
-}
+bool checkOrCreateCSV(const string &filename);
 
 void divider(string text);
 
 int main() // prompts filename and check
 {
-    divider("STUDENT ATTENDANCE TRACKER - MILESTONE 1");
+    divider("STUDENT ATTENDANCE TRACKER - MILESTONE 2");
     string folder = handleDirectory();
     if (folder.empty())
     {
@@ -189,14 +73,32 @@ int main() // prompts filename and check
     {
         cout << "Operation cancelled.\n";
     }
+
+    while (true)
+    {
+        char choice;
+
+        cout << "Would you like to view the sheet? (y/n)" << endl;
+        cin >> choice;
+
+        if (choice == 'y' || choice == 'Y')
+        {
+            viewSheet(filename);
+
+            sheetModification();
+        }
+        else
+        {
+            break;
+        }
+    }
+
     inEdit(filename, folder);
-    divider("View Attendance Sheet (CSV Mode)");
-    viewSheet(filename);
 
     divider("Advanced Error Handling Demo");
     errorDemo();
 
-    divider("End of Milestone 1 Output");
+    divider("End of Milestone 2 Output");
     return 0;
 }
 bool directoryExists(const string &dirName)
@@ -466,6 +368,7 @@ void viewSheet(string filename) // displays the data in CSV Mode
 {
     string text;
     ifstream sheet(filename);
+    divider("View Attendance Sheet (CSV Mode)");
     while (getline(sheet, text))
     {
         cout << text << endl;
@@ -485,6 +388,162 @@ void errorDemo()
     {
         cout << "Invalid input. Please enter an integer: " << endl
              << endl;
+    }
+}
+
+bool isValidType(string type) // Convert to uppercase
+{
+
+    for (char &c : type)
+    {
+        c = toupper(c);
+    }
+
+    return (type == "INT" || type == "STRING");
+}
+
+bool isValidColumnName(string name) // remove empty space
+{
+
+    size_t start = name.find_first_not_of(" \t");
+    if (start == string::npos)
+        return false;
+
+    size_t end = name.find_last_not_of(" \t");
+    name = name.substr(start, end - start + 1);
+
+    return !name.empty();
+}
+
+bool checkOrCreateCSV(const string &filename)
+{
+    ifstream infile(filename); // if exist, add data to new row
+    if (infile.good())
+    {
+        infile.close();
+        cout << "File exists. Opening file...\n";
+        return true;
+    }
+    infile.close();
+
+    // File does not exist → ask user
+    char choice;
+    cout << "File does not exist.\n";
+    cout << "Do you want to create it? (y/n): ";
+    cin >> choice;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (choice != 'y' && choice != 'Y')
+    {
+        return false;
+    }
+
+    ofstream outfile(filename); // opens file
+    if (!outfile.is_open())
+    {
+        cerr << "Error creating file.\n";
+        return false;
+    }
+
+    int column;
+    string temp;
+
+    while (true)
+    {
+        cout << "Enter number of columns (1-10): ";
+        getline(cin, temp);
+
+        if (isValidInt(temp))
+        {
+            column = stoi(temp);
+            if (column > 0 && column <= 10)
+            {
+                break;
+            }
+        }
+
+        cout << "Invalid input. Please enter an integer between 1 and 10.\n";
+    }
+
+    cout << endl;
+
+    for (int i = 0; i < column; i++)
+    {
+        string name, type;
+
+        while (true)
+        {
+            cout << "Enter column " << i + 1 << " name: ";
+            getline(cin, name);
+
+            if (isValidColumnName(name))
+            {
+                break;
+            }
+
+            cout << "Column name cannot be empty. Please try again.\n";
+        }
+
+        while (true)
+        {
+            cout << "Enter column " << i + 1 << " type (INT or STRING): ";
+            getline(cin, type);
+
+            if (isValidType(type))
+            {
+                // normalize to uppercase before storing
+                for (char &c : type)
+                    c = toupper(c);
+                break;
+            }
+
+            cout << "Invalid type. Please enter INT or STRING only.\n";
+        }
+
+        outfile << name << "(" << type << ")";
+
+        if (i < column - 1)
+            outfile << ",";
+
+        cout << endl;
+    }
+
+    outfile.close();
+    cout << "File created successfully.\n"
+         << endl;
+    return true;
+}
+bool sheetModification()
+{
+    char choice;
+    bool logic = true;
+
+    while (logic)
+    {
+
+        cout << endl
+             << "Please select what kind of action you would like to do" << endl
+             << endl
+             << "1) Add" << endl
+             << "2) Edit" << endl
+             << "3) Cancel" << endl
+             << endl;
+        cin >> choice;
+
+        switch (choice)
+        {
+        case '1':
+            break;
+        case '2':
+            break;
+        case '3':
+            logic = false;
+            break;
+        default:
+            cout << "Error, choice was not listed in the options provided" << endl
+                 << endl;
+            break;
+        }
     }
 }
 
