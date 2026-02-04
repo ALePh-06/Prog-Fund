@@ -36,6 +36,7 @@ bool checkOrCreateCSV(const string &filename);
 
 void divider(string text);
 void addToSheet(const string &filename);
+void count(const string &filename);
 
 int main() // prompts filename and check
 {
@@ -82,25 +83,7 @@ int main() // prompts filename and check
         cout << "Operation cancelled.\n";
     }
 
-    while (true)
-    {
-        char choice;
-
-        cout << endl
-             << "Would you like to view the sheet? (y/n)" << endl;
-        cin >> choice;
-
-        if (choice == 'y' || choice == 'Y')
-        {
-            viewSheet(filename);
-
-            sheetModification(filename, folder);
-        }
-        else
-        {
-            break;
-        }
-    }
+    sheetModification(filename, folder);
 
     divider("Advanced Error Handling Demo");
     errorDemo();
@@ -541,8 +524,10 @@ void sheetModification(const string &filename, const string &folder)
              << endl
              << "1) Add" << endl
              << "2) Edit" << endl
-             << "3) View Sheet" << endl
-             << "4) Cancel" << endl
+             << "3) Count" << endl
+             << "4) View Sheet" << endl
+             << "5) Error Demo" << endl
+             << "6) End program" << endl
              << endl;
         cin >> choice;
 
@@ -555,9 +540,15 @@ void sheetModification(const string &filename, const string &folder)
             inEdit(filename, folder);
             break;
         case '3':
-            viewSheet(filename);
+            count(filename);
             break;
         case '4':
+            viewSheet(filename);
+            break;
+        case '5':
+            errorDemo();
+            break;
+        case '6':
             logic = false;
             break;
         default:
@@ -590,5 +581,19 @@ void addToSheet(const string &filename)
         }
     }
 }
+void count(const string &filename)
+{
+    string text;
+    int i = -1;
+    ifstream sheet(filename);
+    divider("Count Rows");
+    while (getline(sheet, text))
+    {
+        i++;
+    }
+    sheet.close();
 
+    cout << "Number of Rows: " << i << endl
+         << endl;
+}
 // Delete part (Muiz)
