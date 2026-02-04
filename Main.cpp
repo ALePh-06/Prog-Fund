@@ -8,6 +8,7 @@
 #include <cctype>
 #include <sys/stat.h>
 #include <cstdio>
+#include <cstdlib>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -37,6 +38,7 @@ bool checkOrCreateCSV(const string &filename);
 void divider(string text);
 void addToSheet(const string &filename);
 void count(const string &filename);
+void clearScreen();
 
 int main() // prompts filename and check
 {
@@ -529,6 +531,9 @@ void sheetModification(const string &filename, const string &folder)
              << "6) End program" << endl
              << endl;
         cin >> choice;
+        cin.ignore();
+
+        clearScreen();
 
         switch (choice)
         {
@@ -563,7 +568,7 @@ void addToSheet(const string &filename)
     int inputs;
     string tempinputs, confirm;
     cout << "Do you want to add new entry to the sheet? Y to confirm, else to cancel" << endl;
-    cin >> tempinputs;
+    getline(cin, tempinputs);
     if (tempinputs == "Y" || tempinputs == "y")
     {
         cout << "How many entry do you want to add?" << endl;
@@ -596,5 +601,14 @@ void count(const string &filename)
 
     cout << "Number of Rows: " << i << endl
          << endl;
+}
+
+void clearScreen()
+{
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
 }
 // Delete part (Muiz)
