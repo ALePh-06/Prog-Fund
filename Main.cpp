@@ -86,6 +86,8 @@ int main() // prompts filename and check
     divider("End of Milestone 2 Output");
     return 0;
 }
+
+/// Yeap
 bool directoryExists(const string &dirName)
 {
     struct stat info;
@@ -151,7 +153,7 @@ string handleDirectory()
     }
 }
 
-// adds input into file
+// adds input into file Alif
 void inStore(const string &filename)
 {
     ifstream infile;
@@ -194,9 +196,9 @@ void inStore(const string &filename)
         }
         input[i] = tempStr;
         outfile << input[i]; /// appending input into the file
-        if (i < column - 1)
+        if (i < column - 1) 
         {
-            outfile << ",";
+            outfile << ",";/// Add ',' as long as the inserted value is not the last one
         }
     }
     outfile << "\n";
@@ -207,6 +209,7 @@ void inStore(const string &filename)
     outfile.close();
 }
 
+/// Muiz
 void inEdit(const string &filename, const string &folder)
 {
     divider("Sheet Edit/Delete");
@@ -257,7 +260,7 @@ void inEdit(const string &filename, const string &folder)
 
     viewSheet(filename);
 }
-
+///Alif
 string inUpdate(const string &filename, string &line)
 {
     ifstream infile;
@@ -298,16 +301,16 @@ string inUpdate(const string &filename, string &line)
             }
             break;
         }
-        data[i] = tempStr; /// appending input into the file
+        data[i] = tempStr; /// appending input into vector
     }
     infile.close();
     string out;
     for (size_t i = 0; i < data.size(); ++i)
     {
-        out += data[i];
+        out += data[i];/// Inserting data inside vector into string
         if (i != data.size() - 1)
         {
-            out += ",";
+            out += ",";/// Adding 'c' after each insertion as long as the data is not the last one
         }
     }
     return out;
@@ -316,8 +319,8 @@ string inUpdate(const string &filename, string &line)
 void fileswap(const string &filename, const string &temp)
 {
     string finalname = filename;
-    remove(finalname.c_str());
-    rename(temp.c_str(), finalname.c_str());
+    remove(finalname.c_str());///Removing the old file
+    rename(temp.c_str(), finalname.c_str());///Renaming the temp file as the oldfile
 }
 
 /// Taking out the string between '(' and ')'
@@ -353,7 +356,7 @@ bool isValidInt(const std::string &s)
         return false;
     }
 }
-
+/// Afiq
 void divider(string text)
 {
     cout << "-------------------------------------------" << endl
@@ -390,7 +393,7 @@ void errorDemo()
              << endl;
     }
 }
-
+/// Yeap
 bool isValidType(string type) // Convert to uppercase
 {
 
@@ -511,7 +514,7 @@ bool checkOrCreateCSV(const string &filename)
          << endl;
     return true;
 }
-
+/// Afiq
 void sheetModification(const string &filename, const string &folder)
 {
     char choice;
@@ -611,4 +614,3 @@ void clearScreen()
     std::system("clear");
 #endif
 }
-// Delete part (Muiz)
