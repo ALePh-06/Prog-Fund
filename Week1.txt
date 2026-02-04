@@ -1,0 +1,4 @@
+ID(INT), Name(STRING), Status(STRING)
+242525, Afiq, 1
+5262123, Alif, 1
+49032, Muiz, 0
