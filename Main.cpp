@@ -196,7 +196,7 @@ void inStore(const string &filename)
         }
         input[i] = tempStr;
         outfile << input[i]; /// appending input into the file
-        if (i < column - 1) 
+        if (i < column - 1)
         {
             outfile << ",";/// Add ',' as long as the inserted value is not the last one
         }
@@ -210,11 +210,11 @@ void inStore(const string &filename)
 }
 
 /// Muiz
-void inEdit(const string &filename, const string &folder)
+void inEdit(const string &filename, const string &folder) // Function for both Update and Delete feature
 {
-    divider("Sheet Edit/Delete");
+    divider("Sheet Edit/Delete"); // Function call/used made by Afiq
 
-    string temp = folder + "/temp.csv";
+    string temp = folder + "/2C416.csv"; // Made a temp file as we didn't want to manipulate the original file hands on.
     ifstream infile;
     infile.open(filename);
     ofstream tempfile;
@@ -222,12 +222,12 @@ void inEdit(const string &filename, const string &folder)
     string line, keyword, confirm;
     cout << "Please enter the keyword for the line that is to be updated/deleted: ";
     getline(cin, keyword);
-    getline(infile, line);
+    getline(infile, line); // This is for transfering the first line of data (The ID, NAME, STATUS, etc.), so that it will be ignored from getting Update or Delete.
     tempfile << line << endl;
-    while (getline(infile, line))
+    while (getline(infile, line)) // The while loop will stop when theres no similarities between keyword and data.
     {
 
-        if (line.find(keyword) != std::string::npos)
+        if (line.find(keyword) != std::string::npos) // This actually same as line.find(keyword) == 'found', used npos as it meant not in position."
         {
             cout << "This line contains the keyword inputted." << endl;
             cout << line << endl;
@@ -235,30 +235,30 @@ void inEdit(const string &filename, const string &folder)
             getline(cin, confirm);
             if (confirm == "1")
             {
-                string out = inUpdate(filename, line);
-                tempfile << out << endl;
+                string out = inUpdate(filename, line); // Using function inUpdate made by Alif
+                tempfile << out << endl; //This is to append the old data to temp file
             }
-            else if (confirm == "2")
+            else if (confirm == "2") // This is for Delete feature
             {
-                continue;
+                continue; // This continue is actually to ignore the line that has keyword and chose to be deleted, so that it won't be transfered from old file into the temp file.
             }
 
             else
             {
-                tempfile << line << endl;
+                tempfile << line << endl; // Else that not been deleted will be transfered.
             }
         }
         else
         {
-            tempfile << line << endl;
+            tempfile << line << endl; // This is an exception for data that has no similarity with the keyword to be transfered.
         }
     }
     infile.close();
     tempfile.close();
 
-    fileswap(filename, temp);
+    fileswap(filename, temp); // Using function that was made by Alif.
 
-    viewSheet(filename);
+    viewSheet(filename); // Using function that was made by Afiq
 }
 ///Alif
 string inUpdate(const string &filename, string &line)
